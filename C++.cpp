@@ -965,12 +965,351 @@ void DoublyCL<T>::DeleteAtPos(int iPos)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Stack Implementation
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class Stack
+{
+public:
+    NodeS<T> *top;
+    int iCount;
+
+    Stack();
+
+    void Push(T);
+    void Pop();
+    T Peek();
+    bool IsEmpty();
+    int Count();
+};
+
+template <class T>
+Stack<T>::Stack()
+{
+    top = NULL;
+    iCount = 0;
+}
+
+template <class T>
+void Stack<T>::Push(T value)
+{
+    NodeS<T> *newNode = new NodeS<T>;
+    newNode->data = value;
+    newNode->next = top;
+    top = newNode;
+    iCount++;
+}
+
+template <class T>
+void Stack<T>::Pop()
+{
+    if (!IsEmpty())
+    {
+        NodeS<T> *temp = top;
+        top = top->next;
+        delete temp;
+        iCount--;
+    }
+}
+
+template <class T>
+T Stack<T>::Peek()
+{
+    if (!IsEmpty())
+    {
+        return top->data;
+    }
+    else
+    {
+        cerr << "Stack is empty." << endl;
+        exit(1);
+    }
+}
+
+template <class T>
+bool Stack<T>::IsEmpty()
+{
+    return (top == NULL);
+}
+
+template <class T>
+int Stack<T>::Count()
+{
+    return iCount;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Queue Implementation
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class Queue
+{
+public:
+    NodeS<T> *front;
+    NodeS<T> *rear;
+    int iCount;
+
+    Queue();
+
+    void Enqueue(T);
+    void Dequeue();
+    T Front();
+    bool IsEmpty();
+    int Count();
+};
+
+template <class T>
+Queue<T>::Queue()
+{
+    front = NULL;
+    rear = NULL;
+    iCount = 0;
+}
+
+template <class T>
+void Queue<T>::Enqueue(T value)
+{
+    NodeS<T> *newNode = new NodeS<T>;
+    newNode->data = value;
+    newNode->next = NULL;
+
+    if (rear == NULL)
+    {
+        front = rear = newNode;
+    }
+    else
+    {
+        rear->next = newNode;
+        rear = newNode;
+    }
+
+    iCount++;
+}
+
+template <class T>
+void Queue<T>::Dequeue()
+{
+    if (!IsEmpty())
+    {
+        NodeS<T> *temp = front;
+        front = front->next;
+        delete temp;
+
+        if (front == NULL)
+        {
+            rear = NULL;
+        }
+
+        iCount--;
+    }
+}
+
+template <class T>
+T Queue<T>::Front()
+{
+    if (!IsEmpty())
+    {
+        return front->data;
+    }
+    else
+    {
+        cerr << "Queue is empty." << endl;
+        exit(1);
+    }
+}
+
+template <class T>
+bool Queue<T>::IsEmpty()
+{
+    return (front == NULL);
+}
+
+template <class T>
+int Queue<T>::Count()
+{
+    return iCount;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Binary Search Tree (BST) Implementation
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+struct BSTNode
+{
+    T data;
+    BSTNode *left;
+    BSTNode *right;
+};
+
+template <class T>
+class BinarySearchTree
+{
+public:
+    BSTNode<T> *root;
+
+    BinarySearchTree();
+
+    void Insert(T);
+    bool Search(T);
+    void Delete(T);
+    void InorderTraversal(BSTNode<T>*);
+
+private:
+    BSTNode<T>* DeleteNode(BSTNode<T>*, T);
+    BSTNode<T>* FindMin(BSTNode<T>*);
+};
+
+template <class T>
+BinarySearchTree<T>::BinarySearchTree()
+{
+    root = NULL;
+}
+
+template <class T>
+void BinarySearchTree<T>::Insert(T value)
+{
+    BSTNode<T> *newNode = new BSTNode<T>;
+    newNode->data = value;
+    newNode->left = newNode->right = NULL;
+
+    if (root == NULL)
+    {
+        root = newNode;
+        return;
+    }
+
+    BSTNode<T> *current = root;
+    BSTNode<T> *parent = NULL;
+
+    while (true)
+    {
+        parent = current;
+        if (value < current->data)
+        {
+            current = current->left;
+            if (current == NULL)
+            {
+                parent->left = newNode;
+                return;
+            }
+        }
+        else
+        {
+            current = current->right;
+            if (current == NULL)
+            {
+                parent->right = newNode;
+                return;
+            }
+        }
+    }
+}
+
+template <class T>
+bool BinarySearchTree<T>::Search(T key)
+{
+    BSTNode<T> *current = root;
+
+    while (current)
+    {
+        if (current->data == key)
+        {
+            return true;
+        }
+        else if (key < current->data)
+        {
+            current = current->left;
+        }
+        else
+        {
+            current = current->right;
+        }
+    }
+
+    return false;
+}
+
+template <class T>
+void BinarySearchTree<T>::InorderTraversal(BSTNode<T> *node)
+{
+    if (node)
+    {
+        InorderTraversal(node->left);
+        cout << node->data << " ";
+        InorderTraversal(node->right);
+    }
+}
+
+template <class T>
+void BinarySearchTree<T>::Delete(T key) {
+    root = DeleteNode(root, key);
+}
+
+template <class T>
+BSTNode<T>* BinarySearchTree<T>::DeleteNode(BSTNode<T>* node, T key) 
+{
+    if (node == NULL) 
+    {
+        return node;
+    }
+
+    if (key < node->data) 
+    {
+        node->left = DeleteNode(node->left, key);
+    } 
+    else if (key > node->data) 
+    {
+        node->right = DeleteNode(node->right, key);
+    } else {
+        // Node with only one child or no child
+        if (node->left == NULL) {
+            BSTNode<T>* temp = node->right;
+            delete node;
+            return temp;
+        } else if (node->right == NULL) {
+            BSTNode<T>* temp = node->left;
+            delete node;
+            return temp;
+        }
+
+        // Node with two children, get the in-order successor (smallest in the right subtree)
+        BSTNode<T>* temp = FindMin(node->right);
+        node->data = temp->data;
+        node->right = DeleteNode(node->right, temp->data);
+    }
+    return node;
+}
+
+template <class T>
+BSTNode<T>* BinarySearchTree<T>::FindMin(BSTNode<T>* node) 
+{
+    while (node->left != NULL) {
+        node = node->left;
+    }
+    return node;
+}
+
+
 int main()
 {
     SinglyLL<int> obj1;
     SinglyCL<float> obj2;
     DoublyLL<char> obj3;
     DoublyCL<double> obj4;
+
+    Stack<int> stack;
+    Queue<string> queue;
+    BinarySearchTree<int> bst;
 
     int iChoice = 0;
     int iValue = 0;
@@ -987,7 +1326,10 @@ int main()
         cout << "2 : Singly Circular Linked List\n";
         cout << "3 : Doubly Linear Linked List\n";
         cout << "4 : Doubly Circular Linked List\n";
-        cout << "5 : Terminate the application\n";
+        cout << "5 : Stack\n";
+        cout << "6 : Queue\n";
+        cout << "7 : Binary Search Tree\n";
+        cout << "8 : Terminate the application\n";
         cout << "------------------------------------------------------\n";
 
         cin >> iChoice;
@@ -1311,6 +1653,188 @@ int main()
             break;
 
         case 5:
+            while (1)
+            {
+                cout << "------------------------------------------------------\n";
+                cout << "Please enter your choice for Stack: \n\n";
+
+                cout << "1 : Push element onto the stack\n";
+                cout << "2 : Pop element from the stack\n";
+                cout << "3 : Peek at the top element of the stack\n";
+                cout << "4 : Check if the stack is empty\n";
+                cout << "5 : Count elements in the stack\n";
+                cout << "6 : Return to main menu\n";
+                cout << "------------------------------------------------------\n";
+
+                cin >> iChoice;
+
+                switch (iChoice)
+                {
+                case 1:
+                    cout << "Enter the value that you want to push onto the stack: \n";
+                    cin >> iValue;
+                    stack.Push(iValue);
+                    break;
+
+                case 2:
+                    stack.Pop();
+                    break;
+
+                case 3:
+                    if (!stack.IsEmpty()) {
+                        cout << "Top element of the stack: " << stack.Peek() << endl;
+                    } else {
+                        cout << "Stack is empty." << endl;
+                    }
+                    break;
+
+                case 4:
+                    cout << "Stack is " << (stack.IsEmpty() ? "empty" : "not empty") << endl;
+                    break;
+
+                case 5:
+                    cout << "Number of elements in the stack: " << stack.Count() << endl;
+                    break;
+
+                case 6:
+                    break;
+
+                default:
+                    cout << "Please enter a valid choice\n";
+                    break;
+                }
+                if (iChoice == 6)
+                {
+                    break;
+                }
+            }
+            break;
+
+        case 6:
+            while (1)
+            {
+                cout << "------------------------------------------------------\n";
+                cout << "Please enter your choice for Queue: \n\n";
+
+                cout << "1 : Enqueue element into the queue\n";
+                cout << "2 : Dequeue element from the queue\n";
+                cout << "3 : Front element of the queue\n";
+                cout << "4 : Check if the queue is empty\n";
+                cout << "5 : Count elements in the queue\n";
+                cout << "6 : Return to main menu\n";
+                cout << "------------------------------------------------------\n";
+
+                cin >> iChoice;
+
+                switch (iChoice)
+                {
+                case 1:
+                    cout << "Enter the value that you want to enqueue into the queue: \n";
+                    cin >> iValue;
+                    queue.Enqueue(to_string(iValue));
+                    break;
+
+                case 2:
+                    if (!queue.IsEmpty()) {
+                        queue.Dequeue();
+                    } else {
+                        cout << "Queue is empty." << endl;
+                    }
+                    break;
+
+                case 3:
+                    if (!queue.IsEmpty()) {
+                        cout << "Front element of the queue: " << queue.Front() << endl;
+                    } else {
+                        cout << "Queue is empty." << endl;
+                    }
+                    break;
+
+                case 4:
+                    cout << "Queue is " << (queue.IsEmpty() ? "empty" : "not empty") << endl;
+                    break;
+
+                case 5:
+                    cout << "Number of elements in the queue: " << queue.Count() << endl;
+                    break;
+
+                case 6:
+                    break;
+
+                default:
+                    cout << "Please enter a valid choice\n";
+                    break;
+                }
+                if (iChoice == 6)
+                {
+                    break;
+                }
+            }
+            break;
+
+        case 7:
+            while (1)
+            {
+                cout << "------------------------------------------------------\n";
+                cout << "Please enter your choice for Binary Search Tree (BST): \n\n";
+
+                cout << "1 : Insert a node into the BST\n";
+                cout << "2 : Delete a node from the BST\n";
+                cout << "3 : Search for a value in the BST\n";
+                cout << "4 : Inorder traversal of the BST\n";
+                cout << "5 : Return to main menu\n";
+                cout << "------------------------------------------------------\n";
+
+                cin >> iChoice;
+
+                switch (iChoice)
+                {
+                case 1:
+                    cout << "Enter the value that you want to insert into the BST: \n";
+                    cin >> iValue;
+                    bst.Insert(iValue);
+                    break;
+
+                case 2:
+                    cout << "Enter the value that you want to delete from the BST: \n";
+                    cin >> iValue;
+                    bst.Delete(iValue);
+                    break;
+
+                case 3:
+                    cout << "Enter the value that you want to search for in the BST: \n";
+                    cin >> iValue;
+                    if (bst.Search(iValue)) 
+                    {
+                        cout << iValue << " is found in the BST." << endl;
+                    } 
+                    else 
+                    {
+                        cout << iValue << " is not found in the BST." << endl;
+                    }
+                    break;
+
+                case 4:
+                    cout << "Inorder traversal of the BST: ";
+                    bst.InorderTraversal(bst.root);
+                    cout << endl;
+                    break;
+
+                case 5:
+                    break;
+
+                default:
+                    cout << "Please enter a valid choice\n";
+                    break;
+                }
+                if (iChoice == 5)
+                {
+                    break;
+                }
+            }
+            break;
+
+        case 8:
             exit(0);
             break;
 
